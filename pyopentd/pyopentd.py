@@ -12,7 +12,7 @@ clr.AddReference("OpenTDv62.Results")
 from System.Collections.Generic import List
 import OpenTDv62 as otd
 
-def read_dwg(dwg_path):
+def open_dwg(dwg_path):
     td = otd.ThermalDesktop()
     dwg_path_obj = otd.Utility.RootedPathname(dwg_path)
     td.ConnectConfig.DwgPathname = dwg_path_obj
@@ -69,6 +69,13 @@ def update_symbol(case, symbol_csv_path):
     # 更新
     case.SymbolNames = symbol_names
     case.SymbolValues = symbol_values
+    case.Update()
+    return case
+
+def update_orbit(case, orbit_name): #TODO ここの入力をorbitで対応できるようにする。
+    # 軌道参照先変更
+    for i in range(len(case.RadiationTasks)):
+        case.RadiationTasks[i].OrbitName = orbit_name
     case.Update()
     return case
 
