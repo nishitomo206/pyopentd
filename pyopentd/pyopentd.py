@@ -12,7 +12,14 @@ clr.AddReference("OpenTDv62.Results")
 from System.Collections.Generic import List
 import OpenTDv62 as otd
 
-def create_orbit(td, csv_path, orbit_name):
+def read_dwg(dwg_path):
+    td = otd.ThermalDesktop()
+    dwg_path_obj = otd.Utility.RootedPathname(dwg_path)
+    td.ConnectConfig.DwgPathname = dwg_path_obj
+    td.Connect()
+    return td
+
+def create_orbit(td, csv_path, orbit_name="new_orbit"):
     # 新しい軌道の作成
     orbit_name = "new_orbit"
     orbit = td.CreateOrbit(orbit_name)
@@ -38,6 +45,7 @@ def create_orbit(td, csv_path, orbit_name):
     orbit.HrPlanetVecArray = planet_vector_list
     orbit.HrTimeArray = time_list
     orbit.HrOrbitRadiusArray = radius_list
+    orbit.Update()
     return orbit
 
 def update_symbol(case, symbol_csv_path):
@@ -61,6 +69,12 @@ def update_symbol(case, symbol_csv_path):
     # 更新
     case.SymbolNames = symbol_names
     case.SymbolValues = symbol_values
+    case.Update()
+    return case
+
+def change_sav_name(case, sav_name):
+    case.SindaOptions.SaveFilename = sav_name
+    case.Update()
     return case
 
 def run_one_case(td, caseset_group_name, caseset_name, orbit_csv_path="", symbol_csv_path="", sav_name=""):
