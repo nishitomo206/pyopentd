@@ -1,5 +1,6 @@
 import sys
 import clr
+import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
 
@@ -121,3 +122,62 @@ def main(dwg_path, caseset_group_name, caseset_name, orbit_csv_path="", symbol_c
     run_one_case(td, caseset_group_name, caseset_name, orbit_csv_path, symbol_csv_path, sav_name)
     
     return
+
+def read_savefile(sav_path):
+    """savefileの読み込み
+
+    Args:
+        sav_path (str): savファイルへのpath。
+    Returns:
+        OpenTDv62.Results.Dataset.SaveFile: savefileクラスのオブジェクト
+    """
+    return otd.Results.Dataset.SaveFile(sav_path)
+
+def get_submodels(savefile):
+    return savefile.GetThermalSubmodels()
+
+def get_node_ids(savefile, submodel_name):
+    return savefile.GetNodeIds(submodel_name)
+
+def get_node_info(savefile):
+    info = {}
+    submodel_list = savefile.GetThermalSubmodels()
+    for i in range(len(submodel_list)):
+        node_id_list = savefile.GetNodeIds(submodel_list[i])
+        if node_id_list == []:
+            continue
+        info[f'{submodel_list[i]}'] = node_id_list
+    return info
+
+def get_node_names(savefile, submodel_name='all', option=''):
+    node_names = []
+    submodel_list = savefile.GetThermalSubmodels()
+    for submodel in submodel_list:
+        node_id_list = savefile.GetNodeIds(submodel)
+        for node_id in node_id_list:
+            node_names.append(f'{submodel}.{option}{node_id}')
+    return node_names
+
+def get_data(savefile, node_list):
+    """時系列データ（結果）の取得
+
+    Args:
+        savefile (OpenTDv62.Results.Dataset.SaveFile): save file
+        node_list (list): ノードのリスト
+    Returns:
+        pandas.core.frame.DataFrame: 時系列データ。ノードリストの情報に加えて、時間情報も追加されている。
+    Note:
+        node_listの要素は、"AAA.1"ではなく、"AAA.T1"や"AAA.Q1"という形式で指定する。
+    """
+    data_td = savefile.GetData(node_list)
+    data = []
+    for i in range(data_td.Count):
+        data.append(data_td[i].GetValues()[:])
+    df = pd.DataFrame(np.array(data).transpose(), columns=node_list) -273.15
+    times = savefile.GetTimes().GetValues()[:]
+    df_times = pd.DataFrame(times, columns=['Times'])
+    return pd.concat([df_times, df], axis=1)
+
+def get_all_temperature(savefile):
+    node_list = get_node_names(savefile, option='T')
+    return get_data(savefile, node_list)
