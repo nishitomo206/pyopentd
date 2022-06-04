@@ -12,6 +12,14 @@ pyopentd.pyopentd module
    :undoc-members:
    :show-inheritance:
 
+pyopentd.result module
+----------------------
+
+.. automodule:: pyopentd.result
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
