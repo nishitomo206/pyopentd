@@ -21,6 +21,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
     
     def __init__(self, sav_path):
         super().__init__(sav_path)
+        self.times = self.GetTimes().GetValues()[:]
     
     def get_submodels(self):
         return self.GetThermalSubmodels()
@@ -60,12 +61,19 @@ class SaveFile(otd.Results.Dataset.SaveFile):
         data_td = self.GetData(node_list)
         data = []
         for i in range(data_td.Count):
-            data.append(data_td[i].GetValues()[:])
-        df = pd.DataFrame(np.array(data).transpose(), columns=node_list) -273.15
+            tmp = data_td[i].GetValues()[:]
+            if '.T' in node_list[i]:
+                tmp = [a-273.15 for a in tmp]
+            data.append(tmp)
+        df = pd.DataFrame(np.array(data).transpose(), columns=node_list)
         times = self.GetTimes().GetValues()[:]
         df_times = pd.DataFrame(times, columns=['Times'])
         return pd.concat([df_times, df], axis=1)
     
     def get_all_temperature(self):
         node_list = self.get_node_names(option='T')
+        return self.get_data(node_list)
+    
+    def get_all_heatrate(self):
+        node_list = self.get_node_names(option='Q')
         return self.get_data(node_list)
