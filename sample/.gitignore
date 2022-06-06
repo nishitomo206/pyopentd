@@ -1,2 +1,4 @@
 td_model/output/
+*.dwl
+*.dwl2
 *.bak
