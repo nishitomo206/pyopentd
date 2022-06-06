@@ -2,8 +2,9 @@
 # Copyright (c) 2022 nishitomo206
 # License: MIT License
 
-from setuptools import setup
-import pyopentd
+from setuptools import setup, find_packages
+# import src.pyopentd
+from src import pyopentd
 
 DESCRIPTION = ""
 NAME = 'pyopentd'
@@ -21,9 +22,9 @@ INSTALL_REQUIRES = [
 EXTRAS_REQUIRE = {
 }
 
-PACKAGES = [
-    'pyopentd'
-]
+# PACKAGES = [
+#     'pyopentd'
+# ]
 
 CLASSIFIERS = [
 ]
@@ -48,6 +49,7 @@ setup(name=NAME,
     #   python_requires=PYTHON_REQUIRES,
       install_requires=INSTALL_REQUIRES,
       extras_require=EXTRAS_REQUIRE,
-      packages=PACKAGES,
+      packages=find_packages(where='src'),
+      package_dir={'': 'src'},
       classifiers=CLASSIFIERS
     )

@@ -1,5 +1,6 @@
 import sys
 import clr
+import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
 
@@ -11,6 +12,68 @@ clr.AddReference("OpenTDv62.Results")
 # from System import *
 from System.Collections.Generic import List
 import OpenTDv62 as otd
+
+class ThermalDesktop(otd.ThermalDesktop):
+    """ThermalDesktop Class
+
+    OpenTDv62.ThermalDesktopを継承したクラス。OpenTDv62.ThermalDesktopクラスについては、マニュアル(OpenTD 62 Class Reference.chm)を参照。
+
+    """
+    
+    def __init__(self, dwg_path):
+        super().__init__()
+        dwg_path_obj = otd.Utility.RootedPathname(dwg_path)
+        self.ConnectConfig.DwgPathname = dwg_path_obj
+        self.Connect()
+    
+    def get_casesets(self):
+        cases_td = self.GetCaseSets()
+        cases = []
+        for case_td in cases_td:
+            cases.append(case_td.ToString().split('.'))
+        df = pd.DataFrame(cases, columns=['group_name', 'caseset_name'])
+        return df
+    
+    def get_orbit(self, orbit_name):
+        orbit = self.GetOrbit(orbit_name)
+        # 太陽方向vec
+        sun_vecs = []
+        for HrSunVec in orbit.HrSunVecArray:
+            x = HrSunVec.X.GetValueSI()
+            y = HrSunVec.Y.GetValueSI()
+            z = HrSunVec.Z.GetValueSI()
+            sun_vecs.append([x, y, z])
+        df_sun = pd.DataFrame(sun_vecs, columns=['sun_x', 'sun_y', 'sun_z']) * 1000
+        # 惑星（地球）方向vec
+        planet_vecs = []
+        for HrPlanetVec in orbit.HrPlanetVecArray:
+            x = HrPlanetVec.X.GetValueSI()
+            y = HrPlanetVec.Y.GetValueSI()
+            z = HrPlanetVec.Z.GetValueSI()
+            planet_vecs.append([x, y, z])
+        df_planet = pd.DataFrame(planet_vecs, columns=['planet_x', 'planet_y', 'planet_z']) * 1000
+        # 時間列
+        times = []
+        for HrTime in orbit.HrTimeArray:
+            t = HrTime.GetValueSI()
+            times.append(t)
+        df_times = pd.DataFrame(times, columns=['Times'])
+        # 距離時系列
+        radiuses = orbit.HrOrbitRadiusArray
+        df_radiuses = pd.DataFrame(radiuses, columns=['radius'])
+        return pd.concat([df_times, df_sun, df_planet, df_radiuses], axis=1)
+    
+def get_orbit_name_from_caseset(case):
+    orbit_name = ''
+    rad_tasks = case.RadiationTasks
+    for rad_task in rad_tasks:
+        if orbit_name == '':
+            orbit_name = rad_task.OrbitName
+        elif orbit_name != rad_task.OrbitName:
+            print('MyWarning: RadiationTasksのOrbitが共通ではありません。')
+    return orbit_name
+    
+    
 
 def open_dwg(dwg_path):
     td = otd.ThermalDesktop()
