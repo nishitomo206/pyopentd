@@ -23,7 +23,7 @@ Thermal DesktopのAPIであるOpenTDをpythonで触るためのライブラリ�
 
 （※後日丁寧に書きます）
 
-1. ダウンロード (もしくはgit clone)
+1. ダウンロード
 
     ``` PowerShell
     git clone https://github.com/nishitomo206/pyopentd.git
