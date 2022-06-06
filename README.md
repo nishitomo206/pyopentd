@@ -17,15 +17,31 @@ Thermal DesktopのAPIであるOpenTDをpythonで触るためのライブラリ�
 - pandas
 - numpy
 
+\* OpenTD : Version 6.2
+
 ## はじめに（インストール・環境構築）
 
 （※後日丁寧に書きます）
 
 1. ダウンロード (もしくはgit clone)
-2. windows powershellを開いてディレクトリの移動
-3. pyopentd.pyの"/OpenTDv62/v4.0_6.2.0.7__65e6d95ed5c2e178/"を自分のものに変更する。
+
+    ``` PowerShell
+    git clone https://github.com/nishitomo206/pyopentd.git
+    ```
+
+2. ./pyopentd/src/pyopentd/ディレクトリにある、\_\_init\_\_.pyを除く全pythonファイルの"/OpenTDv62/v4.0_6.2.0.7__65e6d95ed5c2e178/"の行を自分のものに変更する。
+3. windows powershellを開いて元のディレクトリ（README.mdと同じ階層）に移動。
+
+    ``` PowerShell
+    cd pyopentd
+    ```
+
 4. pip installする。
+
+    ``` PowerShell
+    pip install .
+    ```
 
 ## サンプルを実行
 
-（準備中）
+./sample/sample.ipynb がサンプルファイルになっているので、ファイルを開いて実行してみて下さい。
