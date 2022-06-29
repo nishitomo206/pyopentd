@@ -1,4 +1,4 @@
-from .pyopentd import *
+from .main import *
 from .result import *
 
 __version__ = '0.0.1'
