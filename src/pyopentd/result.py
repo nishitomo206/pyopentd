@@ -71,9 +71,16 @@ class SaveFile(otd.Results.Dataset.SaveFile):
         return pd.concat([df_times, df], axis=1)
     
     def get_all_temperature(self):
+        """全ノードの温度データ取得
+        """
         node_list = self.get_node_names(option='T')
         return self.get_data(node_list)
     
     def get_all_heatrate(self):
+        """全ノードの熱入力取得
+        
+        Note:
+            外部熱入力（太陽熱入力）も含む。
+        """
         node_list = self.get_node_names(option='Q')
         return self.get_data(node_list)
