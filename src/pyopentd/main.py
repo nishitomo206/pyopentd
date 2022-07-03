@@ -39,6 +39,7 @@ class ThermalDesktop(otd.ThermalDesktop):
         return Case(self.GetCaseSet(caseset_name, group_name))
     
     def get_orbit(self, orbit_name):
+        """軌道データの所得"""
         orbit = self.GetOrbit(orbit_name)
         # 太陽方向vec
         sun_vecs = []
@@ -75,26 +76,32 @@ class ThermalDesktop(otd.ThermalDesktop):
         df_radiuses = pd.DataFrame(radiuses, columns=['radius'])
         return pd.concat([df_times, df_sun, df_planet, df_radiuses], axis=1)
 
-    def create_orbit(self, csv_path, orbit_name="new_orbit"):
+    def create_orbit(self, df_orbit, orbit_name="new_orbit"):
+        """新規軌道作成
+        
+        Args:
+            df_orbit (pandas.core.frame.DataFrame): 軌道のDataframe(カラムは['time', 'sun_x', 'sun_y', 'sun_z', 'earth_x', 'earth_y', 'earth_z', 'radius'])
+            orbit_name (str): 軌道の名前
+        """
+        # カラム名チェック
+        column = ['time', 'sun_x', 'sun_y', 'sun_z', 'earth_x', 'earth_y', 'earth_z', 'radius']
+        if df_orbit.columns.values.tolist() != column:
+            print("MYERROR: DataFrameのカラム名が正しくありません。['time', 'sun_x', 'sun_y', 'sun_z', 'earth_x', 'earth_y', 'earth_z', 'radius']に変更して下さい。")
+        
         # 新しい軌道の作成
         orbit_name = "new_orbit"
         orbit = self.CreateOrbit(orbit_name)
         orbit.OrbitType = otd.RadCAD.Orbit.OrbitTypes.TRAJECTORY # orbitタイプの変更。
         
-        # csv読み込み
-        header = ['time', 'sun_bf_x', 'sun_bf_y', 'sun_bf_z', 'earth_bf_x', 'earth_bf_y', 'earth_bf_z', 'radius']
-        df = pd.read_csv(csv_path, header=None)
-        df.columns = header
-        
         # 軌道情報作成
         solar_vector_list = List[otd.Vector3d]() # Solar Vectorの履歴
         planet_vector_list = List[otd.Vector3d]() # Vector to Earthの履歴
         radius_list = List[float]() # radiusの履歴
-        for index, row in df.iterrows():
-            solar_vector_list.Add(otd.Vector3d(row[1]/1000,row[2]/1000,row[3]/1000))
-            planet_vector_list.Add(otd.Vector3d(row[4]/1000,row[5]/1000,row[6]/1000))
-            radius_list.Add(row[7])
-        time_list = list(df['time'].values.astype(float))
+        for index, row in df_orbit.iterrows():
+            solar_vector_list.Add(otd.Vector3d(row['sun_x']/1000,row['sun_y']/1000,row['sun_z']/1000))
+            planet_vector_list.Add(otd.Vector3d(row['earth_x']/1000,row['earth_y']/1000,row['earth_z']/1000))
+            radius_list.Add(row['radius'])
+        time_list = list(df_orbit['time'].values.astype(float))
         time_list = otd.Dimension.DimensionalList[otd.Dimension.Time](time_list)
         # 軌道情報更新
         orbit.HrSunVecArray = solar_vector_list
@@ -115,6 +122,10 @@ class Case():
     def __init__(self, case):
         self.origin = case
     
+    def run(self):
+        self.origin.Run()
+        return
+    
     def get_orbit_name(self):
         orbit_name = ''
         rad_tasks = self.origin.RadiationTasks
@@ -125,37 +136,45 @@ class Case():
                 print('MyWarning: RadiationTasksのOrbitが共通ではありません。')
         return orbit_name
     
-    def run(self):
-        self.origin.Run()
-        return
+    def get_symbols(self):
+        symbols = np.array([self.origin.SymbolNames,
+                            self.origin.SymbolValues,
+                            self.origin.SymbolComments]).T
+        df = pd.DataFrame(symbols, columns=['name', 'value', 'comment'])
+        return df
     
-    def update_symbol(self, df_symbol): #TODO ここの入力をpandas.Dataframe入力にする。
-            symbol_name_list = self.origin.SymbolNames
-            symbol_value_list = self.origin.SymbolValues
-            symbol_comment_list = self.origin.SymbolComments
-            
-            for index, row in df_symbol.iterrows():
-                if row['name'] in symbol_name_list:
-                    index = symbol_name_list.index(row['name'])
-                    symbol_value_list[index] = str(row['value'])
-                else:
-                    # print("シンボルが見つかりませんでした、追加します。")
-                    symbol_name_list.append(row['name'])
-                    symbol_value_list.append(str(row['value']))
-                    symbol_comment_list.append('')
-            symbol_names = List[str]()
-            symbol_values = List[str]()
-            symbol_comments = List[str]()
-            for i in range(len(symbol_name_list)):
-                symbol_names.Add(symbol_name_list[i])
-                symbol_values.Add(symbol_value_list[i])
-                symbol_comments.Add(symbol_comment_list[i])
-            # 更新
-            self.origin.SymbolNames = symbol_names
-            self.origin.SymbolValues = symbol_values
-            self.origin.SymbolComments = symbol_comments
-            self.origin.Update()
-            return
+    def update_symbol(self, df_symbol):
+        """変数の変更・追加
+        
+        Args:
+            df_symbol (pandas.core.frame.DataFrame): 変更したい変数のDataframe('name'と'value'をカラムにもつ)
+        """
+        symbol_name_list = self.origin.SymbolNames
+        symbol_value_list = self.origin.SymbolValues
+        symbol_comment_list = self.origin.SymbolComments
+        
+        for index, row in df_symbol.iterrows():
+            if row['name'] in symbol_name_list:
+                index = symbol_name_list.index(row['name'])
+                symbol_value_list[index] = str(row['value'])
+            else:
+                # print("シンボルが見つかりませんでした、追加します。")
+                symbol_name_list.append(row['name'])
+                symbol_value_list.append(str(row['value']))
+                symbol_comment_list.append('')
+        symbol_names = List[str]()
+        symbol_values = List[str]()
+        symbol_comments = List[str]()
+        for i in range(len(symbol_name_list)):
+            symbol_names.Add(symbol_name_list[i])
+            symbol_values.Add(symbol_value_list[i])
+            symbol_comments.Add(symbol_comment_list[i])
+        # 更新
+        self.origin.SymbolNames = symbol_names
+        self.origin.SymbolValues = symbol_values
+        self.origin.SymbolComments = symbol_comments
+        self.origin.Update()
+        return
     
     def update_orbit(self, orbit_name): #TODO ここの入力をorbitで対応できるようにする。
         # 軌道参照先変更
