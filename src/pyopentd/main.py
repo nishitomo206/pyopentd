@@ -12,6 +12,7 @@ clr.AddReference("OpenTDv62.Results")
 # from System import *
 from System.Collections.Generic import List
 import OpenTDv62 as otd
+import System
 
 class ThermalDesktop(otd.ThermalDesktop):
     """ThermalDesktop Class
@@ -75,6 +76,77 @@ class ThermalDesktop(otd.ThermalDesktop):
         radiuses = orbit.HrOrbitRadiusArray
         df_radiuses = pd.DataFrame(radiuses, columns=['radius'])
         return pd.concat([df_times, df_sun, df_planet, df_radiuses], axis=1)
+    
+    def get_nodes(self, printif=False):
+        nodes = self.GetNodes()
+        if printif:
+            for node in nodes:
+                print('----------')
+                print(node)
+                print('Handle: ', node.Handle)
+                print('Submodel: ', node.Submodel)
+                print('Id: ', node.Id)
+        return nodes
+    
+    def get_node(self, submodel, id, printif=False):
+        nodes = self.GetNodes()
+        node = 0
+        for node_i in nodes:
+            if node_i.Submodel.ToString()==submodel and node_i.Id==id:
+                node = self.GetNode(node_i.Handle)
+                break
+        if node == 0:
+            print('MYERROR (in pyopentd.main.get_node): 指定したnodeが見つかりませんでした。')
+            return
+        if printif:
+            print(node)
+            print('Handle: ', node.Handle)
+            print('Submodel: ', node.Submodel)
+            print('Id: ', node.Id)
+        return node
+    
+    def create_heatload(self, submodel, id, transient_type, value=-1, time_array=[], value_array=[], name='', layer='', enable_exp=''):
+        node = self.get_node(submodel, id) # ノードの取得
+        heatload = self.CreateHeatLoad(otd.Connection(node)) # heatloadの作成
+        
+        if transient_type == 0: # constant heatload の作成
+            # typeの変更
+            heatload.HeatLoadTransientType = 0
+            heatload.TimeDependentSteadyStateType = 0
+            if value == -1:
+                print('MYWARNING (in pyopentd.main.create_heatload): ヒートロードのvalueが指定されていません。')
+            # valueの変更
+            if type(value) == str:
+                heatload.ValueExp.Value = value
+            else:
+                heatload.Value = value
+        elif transient_type == 1: # time dependent heatload の作成
+            # チェック
+            if len(time_array) != len(value_array):
+                print('MYERROR (in pyopentd.main.create_heatload): time_arrayとvalue_arrayの長さが異なります。')
+            # typeの変更
+            heatload.HeatLoadTransientType = 1
+            heatload.TimeDependentSteadyStateType = 1
+            # time arrayの変更
+            TimeArray = List[System.String]()
+            for time in time_array:
+                TimeArray.Add(str(time))
+            heatload.TimeArrayExp.expression = TimeArray
+            # value arrayの変更
+            ValueArray = List[System.String]()
+            for val in value_array:
+                ValueArray.Add(str(val))
+            heatload.ValueArrayExp.expression = ValueArray
+        else:
+            print('MYERROR (in pyopentd.main.create_heatload): transient_typeが正しくありません。')
+        
+        heatload.Submodel.Name = submodel # hwatloadのSubmodelを変更
+        if name != '': heatload.Name = name
+        if layer != '': heatload.Layer = layer
+        if enable_exp != '': heatload.EnabledExp.Value = enable_exp
+        
+        heatload.Update()
+        return heatload
 
     def create_orbit(self, df_orbit, orbit_name="new_orbit"):
         """新規軌道作成
@@ -84,9 +156,9 @@ class ThermalDesktop(otd.ThermalDesktop):
             orbit_name (str): 軌道の名前
         """
         # カラム名チェック
-        column = ['time', 'sun_x', 'sun_y', 'sun_z', 'earth_x', 'earth_y', 'earth_z', 'radius']
+        column = ['Times', 'sun_x', 'sun_y', 'sun_z', 'planet_x', 'planet_y', 'planet_z', 'radius']
         if df_orbit.columns.values.tolist() != column:
-            print("MYERROR: DataFrameのカラム名が正しくありません。['time', 'sun_x', 'sun_y', 'sun_z', 'earth_x', 'earth_y', 'earth_z', 'radius']に変更して下さい。")
+            print("MYERROR (in pyopentd.main.create_orbit): DataFrameのカラム名が正しくありません。['Times', 'sun_x', 'sun_y', 'sun_z', 'planet_x', 'planet_y', 'planet_z', 'radius']に変更して下さい。")
         
         # 新しい軌道の作成
         orbit_name = "new_orbit"
@@ -99,9 +171,9 @@ class ThermalDesktop(otd.ThermalDesktop):
         radius_list = List[float]() # radiusの履歴
         for index, row in df_orbit.iterrows():
             solar_vector_list.Add(otd.Vector3d(row['sun_x']/1000,row['sun_y']/1000,row['sun_z']/1000))
-            planet_vector_list.Add(otd.Vector3d(row['earth_x']/1000,row['earth_y']/1000,row['earth_z']/1000))
+            planet_vector_list.Add(otd.Vector3d(row['planet_x']/1000,row['planet_y']/1000,row['planet_z']/1000))
             radius_list.Add(row['radius'])
-        time_list = list(df_orbit['time'].values.astype(float))
+        time_list = list(df_orbit['Times'].values.astype(float))
         time_list = otd.Dimension.DimensionalList[otd.Dimension.Time](time_list)
         # 軌道情報更新
         orbit.HrSunVecArray = solar_vector_list
