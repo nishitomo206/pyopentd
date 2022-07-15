@@ -232,6 +232,10 @@ class Case():
     def __init__(self, case):
         self.origin = case
     
+    def update(self):
+        self.origin.Update()
+        return
+
     def run(self):
         self.origin.Run()
         return
@@ -283,25 +287,50 @@ class Case():
         self.origin.SymbolNames = symbol_names
         self.origin.SymbolValues = symbol_values
         self.origin.SymbolComments = symbol_comments
-        self.origin.Update()
+        self.update()
         return
     
     def update_orbit(self, orbit_name): #TODO ここの入力をorbitで対応できるようにする。
         # 軌道参照先変更
         for i in range(len(self.origin.RadiationTasks)):
             self.origin.RadiationTasks[i].OrbitName = orbit_name
-        self.origin.Update()
+        self.update()
         return
     
     def change_sav_name(self, sav_name):
         self.origin.SindaOptions.SaveFilename = sav_name
-        self.origin.Update()
+        self.update()
         return
     
-    def update(self):
-        self.origin.Update()
+    def add_radiation_task(self, calc_type, orbit_name='', analysis_group='BASE'):
+        # rad task の作成
+        rad_task = otd.RadiationTaskData()
+        rad_task.AnalGroup = analysis_group # Analysis Groupの指定
+        rad_task.TypeCalc = calc_type # [0: Radks, 1: Heating Rates, 2: Articulating Radks]
+        if calc_type == 1 or calc_type == 2:
+            rad_task.OrbitName = orbit_name
+        
+        rad_task.RkFilename = f'{self.origin.GroupName}_{self.origin.Name}.k'
+        rad_task.RkSubmodel = f'{self.origin.GroupName}_{self.origin.Name}'
+        rad_task.HrFilename = f'{self.origin.GroupName}_{self.origin.Name}.hr'
+        rad_task.HrSubmodel = f'{self.origin.GroupName}_{self.origin.Name}'
+        rad_task.FfFilename = f'{self.origin.GroupName}_{self.origin.Name}.dat'
+        rad_task.OutputTrackerDataFile = f'{self.origin.GroupName}_{self.origin.Name}.dat'
+        
+        # 追加
+        if self.origin.RadiationTasks == []:
+            rad_task_list = List[otd.RadiationTaskData]()
+            rad_task_list.Add(rad_task)
+            self.origin.RadiationTasks = rad_task_list
+        else:
+            original_rad_task_list = self.origin.RadiationTasks
+            rad_task_list = List[otd.RadiationTaskData]()
+            for task in original_rad_task_list:
+                rad_task_list.Add(task)
+            rad_task_list.Add(rad_task)
+            self.origin.RadiationTasks = rad_task_list
+        self.update()
         return
-
 
 
 # def run_one_case(td, caseset_group_name, caseset_name, orbit_csv_path="", symbol_csv_path="", sav_name=""):
