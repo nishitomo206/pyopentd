@@ -199,7 +199,6 @@ class ThermalDesktop(otd.ThermalDesktop):
             print("MYERROR (in pyopentd.main.create_orbit): DataFrameのカラム名が正しくありません。['Times', 'sun_x', 'sun_y', 'sun_z', 'planet_x', 'planet_y', 'planet_z', 'radius']に変更して下さい。")
         
         # 新しい軌道の作成
-        orbit_name = "new_orbit"
         orbit = self.CreateOrbit(orbit_name)
         orbit.OrbitType = otd.RadCAD.Orbit.OrbitTypes.TRAJECTORY # orbitタイプの変更。
         
