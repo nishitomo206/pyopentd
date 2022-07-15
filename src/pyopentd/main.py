@@ -113,6 +113,36 @@ class ThermalDesktop(otd.ThermalDesktop):
             print('Id: ', node.Id)
         return node
     
+    def create_caseset(self, name, group, steady, transient, time_end=0, run_dir='', sumodels_not_built=[], restart_file=''):
+        case = self.CreateCaseSet(name, group, name)
+        case = Case(case)
+        case.origin.SaveQ = 1 # outputにincident heatを含める。
+        case.origin.SteadyState = steady
+        case.origin.Transient = transient
+        if transient == 1:
+            if time_end == 0: print('MYERROR: 終了時刻(time_end)を指定してください。')
+            case.origin.SindaControl.timendExp.Value = str(time_end)
+        
+        # リスタートファイルを使用する
+        if restart_file != '':
+            case.origin.UseRestartFile = 1
+            case.origin.RestartFile = restart_file
+        
+        # BuildTypeの指定（シミュレーションしないサブモデルの指定）
+        if sumodels_not_built != []:
+            case.origin.BuildType = 2
+            tmp_list = List[str]()
+            for submodel in sumodels_not_built:
+                tmp_list.Add(submodel)
+            case.origin.SubmodelsNotBuilt = tmp_list
+        
+        # use_run_directoryの設定
+        if run_dir != '':
+            case.origin.UseUserDirectory = 1
+            case.origin.UserDirectory = run_dir
+        case.update()
+        return case
+    
     def create_heatload(self, submodel, id, transient_type, value=-1, time_array=[], value_array=[], name='', layer='', enable_exp=''):
         node = self.get_node(submodel, id) # ノードの取得
         heatload = self.CreateHeatLoad(otd.Connection(node)) # heatloadの作成
