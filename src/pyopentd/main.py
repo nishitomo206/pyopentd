@@ -39,6 +39,14 @@ class ThermalDesktop(otd.ThermalDesktop):
     def get_caseset(self, caseset_name, group_name):
         return Case(self.GetCaseSet(caseset_name, group_name))
     
+    def get_orbits(td):
+        orbits_list = []
+        orbits = td.GetOrbits()
+        for orbit in orbits:
+            orbits_list.append([orbit.Name, orbit.OrbitType, orbit])
+        df_orbits = pd.DataFrame(orbits_list, columns=['Name', 'OrbitType', 'original_object'])
+        return df_orbits
+    
     def get_orbit(self, orbit_name):
         """軌道データの所得"""
         orbit = self.GetOrbit(orbit_name)
@@ -257,6 +265,10 @@ class Case():
     
     def change_sav_name(self, sav_name):
         self.origin.SindaOptions.SaveFilename = sav_name
+        self.origin.Update()
+        return
+    
+    def update(self):
         self.origin.Update()
         return
 
