@@ -45,3 +45,7 @@ Thermal DesktopのAPIであるOpenTDをpythonで触るためのライブラリ�
 ## サンプルを実行
 
 ./sample/sample.ipynb がサンプルファイルになっているので、ファイルを開いて実行してみて下さい。
+
+## 質問、問い合わせ、その他なんでも
+
+お気軽に nishitomo206@gmail.com にお問い合わせください。
