@@ -64,6 +64,9 @@ class ThermalDesktop(otd.ThermalDesktop):
         df_heaters = pd.DataFrame(heaters_list, columns=header)
         return df_heaters
     
+    def get_heater(self, handle):
+        return self.GetHeater(handle)
+    
     def get_orbits(td):
         orbits_list = []
         orbits = td.GetOrbits()
