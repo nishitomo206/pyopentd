@@ -39,6 +39,31 @@ class ThermalDesktop(otd.ThermalDesktop):
     def get_caseset(self, caseset_name, group_name):
         return Case(self.GetCaseSet(caseset_name, group_name))
     
+    def get_heaters(td):
+        #* アプライ先、センサー先のノードは1つであると仮定。
+        #* ノードヒーターであると仮定。
+        #TODO 色々なタイプのノードに対応させる。
+        heaters = td.GetHeaters()
+        heaters_list = []
+        for heater in heaters:
+            apply_node = None
+            sensor_node = None
+            name = heater.Name
+            submodel = heater.Submodel
+            handle = heater.Handle
+            if heater.ApplyConnections != []:
+                node = td.GetNode(heater.ApplyConnections[0].Handle)
+                apply_node = f'{node.Submodel}.{node.Id}'
+            if len(heater.ApplyConnections) >= 2: print("MYWARNING: 1つのヒーターが2つ以上のノードに適用されています。")
+            if heater.SensorConnections != []:
+                node = td.GetNode(heater.SensorConnections[0].Handle)
+                sensor_node = f'{node.Submodel}.{node.Id}'
+            if len(heater.SensorConnections) >= 2: print("MYWARNING: 1つのヒーターが2つ以上のノードの温度を監視してます。")
+            heaters_list.append([name, submodel, handle, apply_node, sensor_node, heater])
+        header = ['Name', 'submodel', 'handle', 'apply_node', 'sensor_node', 'original_object']
+        df_heaters = pd.DataFrame(heaters_list, columns=header)
+        return df_heaters
+    
     def get_orbits(td):
         orbits_list = []
         orbits = td.GetOrbits()
