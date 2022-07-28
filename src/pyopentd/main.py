@@ -39,6 +39,26 @@ class ThermalDesktop(otd.ThermalDesktop):
     def get_caseset(self, caseset_name, group_name):
         return Case(self.GetCaseSet(caseset_name, group_name))
     
+    def get_heatloads(self):
+        #* アプライ先、センサー先のノードは1つであると仮定。
+        #* ノードヒーターであると仮定。
+        #TODO 色々なタイプのノードに対応させる。
+        heatloads = self.GetHeatLoads()
+        heatloads_list = []
+        for heatload in heatloads:
+            apply_node = None
+            name = heatload.Name
+            submodel = heatload.Submodel
+            handle = heatload.Handle
+            if heatload.ApplyConnections != []:
+                node = self.GetNode(heatload.ApplyConnections[0].Handle)
+                apply_node = f'{node.Submodel}.{node.Id}'
+            if len(heatload.ApplyConnections) >= 2: print("MYWARNING: 1つのヒーターが2つ以上のノードに適用されています。")
+            heatloads_list.append([name, submodel, handle, apply_node, heatload])
+        header = ['Name', 'submodel', 'handle', 'apply_node', 'original_object']
+        df_heatloads = pd.DataFrame(heatloads_list, columns=header)
+        return df_heatloads
+    
     def get_heaters(td):
         #* アプライ先、センサー先のノードは1つであると仮定。
         #* ノードヒーターであると仮定。
