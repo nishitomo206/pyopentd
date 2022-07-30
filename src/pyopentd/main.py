@@ -148,7 +148,7 @@ class ThermalDesktop(otd.ThermalDesktop):
         nodes = self.GetNodes()
         node = 0
         for node_i in nodes:
-            if node_i.Submodel.ToString()==submodel and node_i.Id==id:
+            if node_i.Submodel.ToString()==submodel and node_i.Id==int(id):
                 node = self.GetNode(node_i.Handle)
                 break
         if node == 0:
@@ -233,6 +233,11 @@ class ThermalDesktop(otd.ThermalDesktop):
         
         heatload.Update()
         return heatload
+    
+    def add_symbol(self, name, value, group=''):
+        symbol = self.CreateSymbol(name, str(value))
+        symbol.Group = group
+        symbol.Update()
 
     def create_orbit(self, df_orbit, orbit_name="new_orbit"):
         """新規軌道作成
