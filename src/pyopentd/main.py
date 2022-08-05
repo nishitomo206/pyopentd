@@ -13,6 +13,7 @@ clr.AddReference("OpenTDv62.Results")
 from System.Collections.Generic import List
 import OpenTDv62 as otd
 import System
+from OpenTDv62 import Dimension
 
 class ThermalDesktop(otd.ThermalDesktop):
     """ThermalDesktop Class
@@ -233,6 +234,42 @@ class ThermalDesktop(otd.ThermalDesktop):
         
         heatload.Update()
         return heatload
+    
+    def create_heater(self, apply_node_sub, apply_node_id, sensor_node_sub, sensor_node_id, value, on_temp, off_temp, name='', submodel='MAIN', enabled_exp='', layer=None, ss_method=None, ss_power_per=None, ss_proportional_damp=None, time_list=None, scale_list=None):
+        # ヒーターの作成
+        apply_node = self.get_node(apply_node_sub, apply_node_id) # ノードの取得
+        apply_list = List[otd.Connection]()
+        apply_list.Add(otd.Connection(apply_node))
+        sensor_node = self.get_node(sensor_node_sub, sensor_node_id) # ノードの取得
+        sensor_list = List[otd.Connection]()
+        sensor_list.Add(otd.Connection(sensor_node))
+        heater = self.CreateHeater(apply_list, sensor_list)
+        
+        # ヒーターのプロパティ設定
+        heater.ValueExp.Value = str(value)
+        heater.OnTempExp.Value = str(on_temp)
+        heater.OffTempExp.Value = str(off_temp)
+        heater.Name = name
+        heater.Submodel.Name = submodel
+        heater.EnabledExp.Value = enabled_exp
+        if layer!= None: heater.Layer = layer
+        
+        # TODO ss_methodの指定
+        heater.SSMethod = 1
+        heater.SSPowerPer = 0
+        
+        # TODO times, scalesの指定
+        if time_list != None or scale_list != None:
+            heater.UseTransientScaling = 1
+            times = Dimension.DimensionalList[Dimension.Time](time_list)
+            scales = List[float]()
+            for scale in scale_list:
+                scales.Add(scale)
+            heater.Times = times
+            heater.Scales = scales
+        
+        heater.Update()
+        return heater
     
     def add_symbol(self, name, value, group=''):
         symbol = self.CreateSymbol(name, str(value))
