@@ -258,7 +258,7 @@ class ThermalDesktop(otd.ThermalDesktop):
         heater.SSMethod = 1
         heater.SSPowerPer = 0
         
-        # TODO times, scalesの指定
+        # times, scalesの指定
         if time_list != None or scale_list != None:
             heater.UseTransientScaling = 1
             times = Dimension.DimensionalList[Dimension.Time](time_list)
