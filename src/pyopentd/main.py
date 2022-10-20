@@ -162,7 +162,21 @@ class ThermalDesktop(otd.ThermalDesktop):
             print('Id: ', node.Id)
         return node
     
-    def create_caseset(self, name, group, steady, transient, time_end=0, run_dir='', sumodels_not_built=[], restart_file=''):
+    def create_caseset(self, name, group, steady, transient, time_end=0, run_dir='', sumodels_not_built=[], restart_file='', force_reset=False):
+        # 既にケースセットがあるかの確認
+        if self.GetCaseSet(name, group):
+            if force_reset:
+                self.DeleteCaseSet(name, group)
+            else:
+                while True:
+                    choice = input(f"既に {name} が {group} にありますが、削除して新たにケースセットを作成しますか？ [y/N]: ").lower()
+                    if choice in ['y', 'ye', 'yes']:
+                        self.DeleteCaseSet(name, group)
+                        break
+                    elif choice in ['n', 'no']:
+                        print(f'Error: 既に{name} が {group} にあります', file=sys.stderr)
+                        sys.exit(1)
+        # 以下、ケースセットの作成
         case = self.CreateCaseSet(name, group, name)
         case = Case(case)
         case.origin.SaveQ = 1 # outputにincident heatを含める。
