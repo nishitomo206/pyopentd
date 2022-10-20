@@ -271,10 +271,20 @@ class ThermalDesktop(otd.ThermalDesktop):
         heater.Update()
         return heater
     
-    def add_symbol(self, name, value, group=''):
-        symbol = self.CreateSymbol(name, str(value))
-        symbol.Group = group
-        symbol.Update()
+    def get_symbol_names(self):
+        symbols_list = []
+        for symbol in self.GetSymbols():
+            symbols_list.append(symbol.Name)
+        return symbols_list
+
+    def add_symbol(self, name, value, group='td_tool'):
+        symbol_names_list = self.get_symbol_names()
+        if name in symbol_names_list:
+            print(f"MYWARNING: {name}は既にグローバルで宣言されています。スキップします。")
+        else:
+            symbol = self.CreateSymbol(name, str(value))
+            symbol.Group = group
+            symbol.Update()
 
     def create_orbit(self, df_orbit, orbit_name="new_orbit"):
         """新規軌道作成
@@ -346,15 +356,23 @@ class Case():
         df = pd.DataFrame(symbols, columns=['name', 'value', 'comment'])
         return df
     
-    def update_symbol(self, df_symbol):
-        """変数の変更・追加
+    def update_symbols(self, df_symbol, reset_symbols=False):
+        """複数変数の追加・変更
+        
+        複数変数の追加・変更用のメソッド。1つの変数ならadd_symbolのほうが引数が分かりやすい（やってることは同じ）。多くの変数を追加するときに、add_symbolだと時間がかかりそうなので、このメソッドを作成。
         
         Args:
             df_symbol (pandas.core.frame.DataFrame): 変更したい変数のDataframe('name'と'value'をカラムにもつ)
+            reset_symbols (bool): 現在の変数を全てリセットしてから、変数を更新する。
         """
-        symbol_name_list = self.origin.SymbolNames
-        symbol_value_list = self.origin.SymbolValues
-        symbol_comment_list = self.origin.SymbolComments
+        if reset_symbols:
+            symbol_name_list = []
+            symbol_value_list = []
+            symbol_comment_list = []
+        else:
+            symbol_name_list = self.origin.SymbolNames
+            symbol_value_list = self.origin.SymbolValues
+            symbol_comment_list = self.origin.SymbolComments
         
         for index, row in df_symbol.iterrows():
             if row['name'] in symbol_name_list:
@@ -365,6 +383,37 @@ class Case():
                 symbol_name_list.append(row['name'])
                 symbol_value_list.append(str(row['value']))
                 symbol_comment_list.append('')
+        symbol_names = List[str]()
+        symbol_values = List[str]()
+        symbol_comments = List[str]()
+        for i in range(len(symbol_name_list)):
+            symbol_names.Add(symbol_name_list[i])
+            symbol_values.Add(symbol_value_list[i])
+            symbol_comments.Add(symbol_comment_list[i])
+        # 更新
+        self.origin.SymbolNames = symbol_names
+        self.origin.SymbolValues = symbol_values
+        self.origin.SymbolComments = symbol_comments
+        self.update()
+        return
+    
+    def add_symbol(self, name, value):
+        """1変数の追加・変更
+        
+        多くの変数を追加・変更する場合はupdate_symbolsの使用を検討してください。
+        
+        """
+        symbol_name_list = self.origin.SymbolNames
+        symbol_value_list = self.origin.SymbolValues
+        symbol_comment_list = self.origin.SymbolComments
+        if name in symbol_name_list:
+            index = symbol_name_list.index(name)
+            symbol_value_list[index] = str(value)
+        else:
+            # print("シンボルが見つかりませんでした、追加します。")
+            symbol_name_list.append(name)
+            symbol_value_list.append(str(value))
+            symbol_comment_list.append('')
         symbol_names = List[str]()
         symbol_values = List[str]()
         symbol_comments = List[str]()
