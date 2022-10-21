@@ -162,7 +162,7 @@ class ThermalDesktop(otd.ThermalDesktop):
             print('Id: ', node.Id)
         return node
     
-    def create_caseset(self, name, group, steady, transient, time_end=0, run_dir='', sumodels_not_built=[], restart_file='', force_reset=False):
+    def create_caseset(self, name, group, steady, transient, time_end=0, run_dir=None, sumodels_not_built=[], restart_file=None, force_reset=False):
         # 既にケースセットがあるかの確認
         if self.GetCaseSet(name, group):
             if force_reset:
@@ -187,7 +187,7 @@ class ThermalDesktop(otd.ThermalDesktop):
             case.origin.SindaControl.timendExp.Value = str(time_end)
         
         # リスタートファイルを使用する
-        if restart_file != '':
+        if restart_file != '' and restart_file != None:
             case.origin.UseRestartFile = 1
             case.origin.RestartFile = restart_file
         
@@ -200,7 +200,7 @@ class ThermalDesktop(otd.ThermalDesktop):
             case.origin.SubmodelsNotBuilt = tmp_list
         
         # use_run_directoryの設定
-        if run_dir != '':
+        if run_dir != '' and run_dir != None:
             case.origin.UseUserDirectory = 1
             case.origin.UserDirectory = run_dir
         case.update()
@@ -370,7 +370,7 @@ class Case():
         df = pd.DataFrame(symbols, columns=['name', 'value', 'comment'])
         return df
     
-    def update_symbols(self, df_symbol, reset_symbols=False):
+    def update_symbols(self, td, df_symbol, reset_symbols=False):
         """複数変数の追加・変更
         
         複数変数の追加・変更用のメソッド。1つの変数ならadd_symbolのほうが引数が分かりやすい（やってることは同じ）。多くの変数を追加するときに、add_symbolだと時間がかかりそうなので、このメソッドを作成。
@@ -379,6 +379,9 @@ class Case():
             df_symbol (pandas.core.frame.DataFrame): 変更したい変数のDataframe('name'と'value'をカラムにもつ)
             reset_symbols (bool): 現在の変数を全てリセットしてから、変数を更新する。
         """
+        
+        global_symbol_names_list = td.get_symbol_names()
+        
         if reset_symbols:
             symbol_name_list = []
             symbol_value_list = []
