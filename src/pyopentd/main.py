@@ -33,8 +33,11 @@ class ThermalDesktop(otd.ThermalDesktop):
         cases_td = self.GetCaseSets()
         cases = []
         for case_td in cases_td:
-            cases.append(case_td.ToString().split('.'))
-        df = pd.DataFrame(cases, columns=['group_name', 'caseset_name'])
+            group_name = case_td.GroupName
+            caseset_name = case_td.Name
+            original_object = Case(case_td)
+            cases.append([group_name, caseset_name, original_object])
+        df = pd.DataFrame(cases, columns=['group_name', 'caseset_name', 'original_object'])
         return df
     
     def get_caseset(self, caseset_name, group_name):
@@ -53,12 +56,13 @@ class ThermalDesktop(otd.ThermalDesktop):
             handle = heatload.Handle
             value = heatload.Value
             value_exp = heatload.ValueExp
+            transient_type = heatload.HeatLoadTransientType
             if heatload.ApplyConnections != []:
                 node = self.GetNode(heatload.ApplyConnections[0].Handle)
                 apply_node = f'{node.Submodel}.{node.Id}'
             if len(heatload.ApplyConnections) >= 2: print("MYWARNING: 1つのヒーターが2つ以上のノードに適用されています。")
-            heatloads_list.append([name, submodel, handle, apply_node, value, value_exp, heatload])
-        header = ['Name', 'submodel', 'handle', 'apply_node', "value", "value_exp", 'original_object']
+            heatloads_list.append([name, submodel, handle, apply_node, transient_type, value, value_exp, heatload])
+        header = ['Name', 'submodel', 'handle', 'apply_node', 'transient_type', "value", "value_exp", 'original_object']
         df_heatloads = pd.DataFrame(heatloads_list, columns=header)
         return df_heatloads
     
