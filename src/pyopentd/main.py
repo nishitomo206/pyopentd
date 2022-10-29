@@ -212,8 +212,8 @@ class ThermalDesktop(otd.ThermalDesktop):
         case.update()
         return case
     
-    def create_heatload(self, submodel, id, transient_type, value=-1, time_array=[], value_array=[], name='', layer='', enable_exp=''):
-        node = self.get_node(submodel, id) # ノードの取得
+    def create_heatload(self, submodel, apply_node_sub, apply_node_id, transient_type, value=-1, time_array=[], value_array=[], name='', layer='', enable_exp=''):
+        node = self.get_node(apply_node_sub, apply_node_id) # ノードの取得
         heatload = self.CreateHeatLoad(otd.Connection(node)) # heatloadの作成
         
         if transient_type == 0: # constant heatload の作成
