@@ -51,12 +51,14 @@ class ThermalDesktop(otd.ThermalDesktop):
             name = heatload.Name
             submodel = heatload.Submodel
             handle = heatload.Handle
+            value = heatload.Value
+            value_exp = heatload.ValueExp
             if heatload.ApplyConnections != []:
                 node = self.GetNode(heatload.ApplyConnections[0].Handle)
                 apply_node = f'{node.Submodel}.{node.Id}'
             if len(heatload.ApplyConnections) >= 2: print("MYWARNING: 1つのヒーターが2つ以上のノードに適用されています。")
-            heatloads_list.append([name, submodel, handle, apply_node, heatload])
-        header = ['Name', 'submodel', 'handle', 'apply_node', 'original_object']
+            heatloads_list.append([name, submodel, handle, apply_node, value, value_exp, heatload])
+        header = ['Name', 'submodel', 'handle', 'apply_node', "value", "value_exp", 'original_object']
         df_heatloads = pd.DataFrame(heatloads_list, columns=header)
         return df_heatloads
     
