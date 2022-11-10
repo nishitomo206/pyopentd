@@ -222,17 +222,17 @@ class ThermalDesktop(otd.ThermalDesktop):
         rectangles = self.GetRectangles()
         rectangles_list = []
         for rectangle in rectangles:
-            rectangles_list.append([    rectangle.TopStartSubmodel,
-                                        rectangle.BotStartSubmodel,
-                                        rectangle.CondSubmodel,
-                                        rectangle.TopNodeNames,
-                                        rectangle.BotNodeNames,
-                                        rectangle._AttachedNodeHandles,
-                                        rectangle.TopOpticalProp,
-                                        rectangle.BotOpticalProp,
-                                        rectangle.Handle,
-                                        rectangle.Comment,
-                                        rectangle])
+            rectangles_list.append([rectangle.TopStartSubmodel,
+                                    rectangle.BotStartSubmodel,
+                                    rectangle.CondSubmodel,
+                                    rectangle.TopNodeNames,
+                                    rectangle.BotNodeNames,
+                                    rectangle._AttachedNodeHandles,
+                                    rectangle.TopOpticalProp,
+                                    rectangle.BotOpticalProp,
+                                    rectangle.Handle,
+                                    rectangle.Comment,
+                                    rectangle])
         header = [  'top_start_submodel',
                     'bot_start_submodel',
                     'cond_submodel',
