@@ -169,6 +169,8 @@ class ThermalDesktop(otd.ThermalDesktop):
             print('Id: ', node.Id)
         return node
     
+    # TODO: get_solidsやget_thin_shellsでまとめる関数があるとよさそう。現状抽出してる項目同じなので。
+    
     # TODO: 抽出する項目は要検討
     def get_solid_bricks(self):
         solid_bricks = self.GetSolidBricks()
@@ -246,6 +248,36 @@ class ThermalDesktop(otd.ThermalDesktop):
                     'original_object']
         df_rectangles = pd.DataFrame(rectangles_list, columns=header)
         return df_rectangles
+    
+    # TODO: 抽出する項目は要検討
+    def get_polygons(self):
+        polygons = self.GetPolygons()
+        polygons_list = []
+        for polygon in polygons:
+            polygons_list.append([  polygon.TopStartSubmodel,
+                                    polygon.BotStartSubmodel,
+                                    polygon.CondSubmodel,
+                                    polygon.TopNodeNames,
+                                    polygon.BotNodeNames,
+                                    polygon._AttachedNodeHandles,
+                                    polygon.TopOpticalProp,
+                                    polygon.BotOpticalProp,
+                                    polygon.Handle,
+                                    polygon.Comment,
+                                    polygon])
+        header = [  'top_start_submodel',
+                    'bot_start_submodel',
+                    'cond_submodel',
+                    'top_node_names',
+                    'bot_node_names',
+                    '_attached_node_handles',
+                    'top_optical_prop',
+                    'bot_optical_prop',
+                    'handle',
+                    'comment',
+                    'original_object']
+        df_polygons = pd.DataFrame(polygons_list, columns=header)
+        return df_polygons
     
     # TODO: 抽出する項目は要検討
     def get_cylinders(self):
