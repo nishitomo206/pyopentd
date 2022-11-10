@@ -169,6 +169,61 @@ class ThermalDesktop(otd.ThermalDesktop):
             print('Id: ', node.Id)
         return node
     
+    # TODO: 抽出する項目は要検討
+    def get_solid_bricks(self):
+        solid_bricks = td.GetSolidBricks()
+        solid_bricks_list = []
+        for solid_brick in solid_bricks:
+            solid_bricks_list.append([  solid_brick.StartSubmodel,
+                                        solid_brick.CondSubmodel,
+                                        solid_brick.NodeNames,
+                                        solid_brick.AttachedNodeHandles,
+                                        solid_brick.OutsideOpticalProperties,
+                                        solid_brick.Handle,
+                                        solid_brick.Comment,
+                                        solid_brick])
+        header = [  'start_submodel',
+                    'cond_submodel',
+                    'node_names',
+                    'attached_node_handles',
+                    'outside_optical_properties',
+                    'handle',
+                    'comment',
+                    'original_object']
+        df_solid_bricks = pd.DataFrame(solid_bricks_list, columns=header)
+        return df_solid_bricks
+    
+    # TODO: 抽出する項目は要検討
+    def get_thin_shells(self):
+        thin_shells = td.GetRectangles()
+        thin_shells_list = []
+        for thin_shell in thin_shells:
+            thin_shells_list.append([   thin_shell.TopStartSubmodel,
+                                        thin_shell.BotStartSubmodel,
+                                        thin_shell.CondSubmodel,
+                                        thin_shell.TopNodeNames,
+                                        thin_shell.BotNodeNames,
+                                        thin_shell._AttachedNodeHandles,
+                                        thin_shell.TopOpticalProp,
+                                        thin_shell.BotOpticalProp,
+                                        thin_shell.Handle,
+                                        thin_shell.Comment,
+                                        thin_shell])
+        header = [  'top_start_submodel',
+                    'bot_start_submodel',
+                    'cond_submodel',
+                    'top_node_names',
+                    'bot_node_names',
+                    '_attached_node_handles',
+                    'top_optical_prop',
+                    'bot_optical_prop',
+                    'handle',
+                    'comment',
+                    'original_object']
+        df_thin_shells = pd.DataFrame(thin_shells_list, columns=header)
+        return df_thin_shells
+    
+    
     def create_caseset(self, name, group, steady, transient, time_end=0, run_dir=None, sumodels_not_built=[], restart_file=None, force_reset=False):
         # 既にケースセットがあるかの確認
         if self.GetCaseSet(name, group):
