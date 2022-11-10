@@ -171,7 +171,7 @@ class ThermalDesktop(otd.ThermalDesktop):
     
     # TODO: 抽出する項目は要検討
     def get_solid_bricks(self):
-        solid_bricks = td.GetSolidBricks()
+        solid_bricks = self.GetSolidBricks()
         solid_bricks_list = []
         for solid_brick in solid_bricks:
             solid_bricks_list.append([  solid_brick.StartSubmodel,
@@ -195,7 +195,7 @@ class ThermalDesktop(otd.ThermalDesktop):
     
     # TODO: 抽出する項目は要検討
     def get_thin_shells(self):
-        thin_shells = td.GetRectangles()
+        thin_shells = self.GetRectangles()
         thin_shells_list = []
         for thin_shell in thin_shells:
             thin_shells_list.append([   thin_shell.TopStartSubmodel,
