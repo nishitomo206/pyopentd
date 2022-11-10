@@ -223,6 +223,36 @@ class ThermalDesktop(otd.ThermalDesktop):
         df_rectangles = pd.DataFrame(rectangles_list, columns=header)
         return df_rectangles
     
+    # TODO: 抽出する項目は要検討
+    def get_cylinders(self):
+        cylinders = self.GetCylinders()
+        cylinders_list = []
+        for cylinder in cylinders:
+            cylinders_list.append([ cylinder.TopStartSubmodel,
+                                    cylinder.BotStartSubmodel,
+                                    cylinder.CondSubmodel,
+                                    cylinder.TopNodeNames,
+                                    cylinder.BotNodeNames,
+                                    cylinder._AttachedNodeHandles,
+                                    cylinder.TopOpticalProp,
+                                    cylinder.BotOpticalProp,
+                                    cylinder.Handle,
+                                    cylinder.Comment,
+                                    cylinder])
+        header = [  'top_start_submodel',
+                    'bot_start_submodel',
+                    'cond_submodel',
+                    'top_node_names',
+                    'bot_node_names',
+                    '_attached_node_handles',
+                    'top_optical_prop',
+                    'bot_optical_prop',
+                    'handle',
+                    'comment',
+                    'original_object']
+        df_cylinders = pd.DataFrame(cylinders_list, columns=header)
+        return df_cylinders
+    
     
     def create_caseset(self, name, group, steady, transient, time_end=0, run_dir=None, sumodels_not_built=[], restart_file=None, force_reset=False):
         # 既にケースセットがあるかの確認
