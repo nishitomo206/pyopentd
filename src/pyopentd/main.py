@@ -194,6 +194,30 @@ class ThermalDesktop(otd.ThermalDesktop):
         return df_solid_bricks
     
     # TODO: 抽出する項目は要検討
+    def get_solid_cylinders(self):
+        solid_cylinders = self.GetSolidCylinders()
+        solid_cylinders_list = []
+        for solid_cylinder in solid_cylinders:
+            solid_cylinders_list.append([   solid_cylinder.StartSubmodel,
+                                            solid_cylinder.CondSubmodel,
+                                            solid_cylinder.NodeNames,
+                                            solid_cylinder.AttachedNodeHandles,
+                                            solid_cylinder.OutsideOpticalProperties,
+                                            solid_cylinder.Handle,
+                                            solid_cylinder.Comment,
+                                            solid_cylinder])
+        header = [  'start_submodel',
+                    'cond_submodel',
+                    'node_names',
+                    'attached_node_handles',
+                    'outside_optical_properties',
+                    'handle',
+                    'comment',
+                    'original_object']
+        df_solid_cylinders = pd.DataFrame(solid_cylinders_list, columns=header)
+        return df_solid_cylinders
+    
+    # TODO: 抽出する項目は要検討
     def get_rectangles(self):
         rectangles = self.GetRectangles()
         rectangles_list = []
