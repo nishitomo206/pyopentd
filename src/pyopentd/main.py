@@ -140,16 +140,17 @@ class ThermalDesktop(otd.ThermalDesktop):
         df_radiuses = pd.DataFrame(radiuses, columns=['radius'])
         return pd.concat([df_times, df_sun, df_planet, df_radiuses], axis=1)
     
-    def get_nodes(self, printif=False):
+    def get_nodes(self):
         nodes = self.GetNodes()
-        if printif:
-            for node in nodes:
-                print('----------')
-                print(node)
-                print('Handle: ', node.Handle)
-                print('Submodel: ', node.Submodel)
-                print('Id: ', node.Id)
-        return nodes
+        nodes_list = []
+        for node in nodes:
+            nodes_list.append([ node.Submodel,
+                                node.Id,
+                                node.Handle,
+                                node])
+        header = ['submodel', 'id', 'handle', 'original_object']
+        df_nodes = pd.DataFrame(nodes_list, columns=header)
+        return df_nodes
     
     def get_node(self, submodel, id, printif=False):
         nodes = self.GetNodes()
