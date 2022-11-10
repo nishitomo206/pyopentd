@@ -194,21 +194,21 @@ class ThermalDesktop(otd.ThermalDesktop):
         return df_solid_bricks
     
     # TODO: 抽出する項目は要検討
-    def get_thin_shells(self):
-        thin_shells = self.GetRectangles()
-        thin_shells_list = []
-        for thin_shell in thin_shells:
-            thin_shells_list.append([   thin_shell.TopStartSubmodel,
-                                        thin_shell.BotStartSubmodel,
-                                        thin_shell.CondSubmodel,
-                                        thin_shell.TopNodeNames,
-                                        thin_shell.BotNodeNames,
-                                        thin_shell._AttachedNodeHandles,
-                                        thin_shell.TopOpticalProp,
-                                        thin_shell.BotOpticalProp,
-                                        thin_shell.Handle,
-                                        thin_shell.Comment,
-                                        thin_shell])
+    def get_rectangles(self):
+        rectangles = self.GetRectangles()
+        rectangles_list = []
+        for rectangle in rectangles:
+            rectangles_list.append([    rectangle.TopStartSubmodel,
+                                        rectangle.BotStartSubmodel,
+                                        rectangle.CondSubmodel,
+                                        rectangle.TopNodeNames,
+                                        rectangle.BotNodeNames,
+                                        rectangle._AttachedNodeHandles,
+                                        rectangle.TopOpticalProp,
+                                        rectangle.BotOpticalProp,
+                                        rectangle.Handle,
+                                        rectangle.Comment,
+                                        rectangle])
         header = [  'top_start_submodel',
                     'bot_start_submodel',
                     'cond_submodel',
@@ -220,8 +220,8 @@ class ThermalDesktop(otd.ThermalDesktop):
                     'handle',
                     'comment',
                     'original_object']
-        df_thin_shells = pd.DataFrame(thin_shells_list, columns=header)
-        return df_thin_shells
+        df_rectangles = pd.DataFrame(rectangles_list, columns=header)
+        return df_rectangles
     
     
     def create_caseset(self, name, group, steady, transient, time_end=0, run_dir=None, sumodels_not_built=[], restart_file=None, force_reset=False):
