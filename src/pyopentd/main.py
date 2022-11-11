@@ -52,7 +52,7 @@ class ThermalDesktop(otd.ThermalDesktop):
         for heatload in heatloads:
             apply_node = None
             name = heatload.Name
-            submodel = heatload.Submodel
+            submodel = heatload.Submodel.ToString()
             handle = heatload.Handle
             value = heatload.Value
             value_exp = heatload.ValueExp
@@ -78,6 +78,13 @@ class ThermalDesktop(otd.ThermalDesktop):
             name = heater.Name
             submodel = heater.Submodel
             handle = heater.Handle
+            value = heater.Value
+            value_exp = heater.ValueExp
+            on_temp = heater.OnTemp
+            on_temp_exp = heater.OnTempExp
+            off_temp = heater.OffTemp
+            off_temp_exp = heater.OffTempExp
+            enabled_exp = heater.EnabledExp
             if heater.ApplyConnections != []:
                 node = self.GetNode(heater.ApplyConnections[0].Handle)
                 apply_node = f'{node.Submodel}.{node.Id}'
@@ -86,8 +93,8 @@ class ThermalDesktop(otd.ThermalDesktop):
                 node = self.GetNode(heater.SensorConnections[0].Handle)
                 sensor_node = f'{node.Submodel}.{node.Id}'
             if len(heater.SensorConnections) >= 2: print("MYWARNING: 1つのヒーターが2つ以上のノードの温度を監視してます。")
-            heaters_list.append([name, submodel, handle, apply_node, sensor_node, heater])
-        header = ['Name', 'submodel', 'handle', 'apply_node', 'sensor_node', 'original_object']
+            heaters_list.append([name, submodel, handle, apply_node, sensor_node, value, value_exp, on_temp, on_temp_exp, off_temp, off_temp_exp, enabled_exp, heater])
+        header = ['Name', 'submodel', 'handle', 'apply_node', 'sensor_node', 'value', 'value_exp', 'on_temp', 'on_temp_exp', 'off_temp', 'off_temp_exp', 'enabled_exp', 'original_object']
         df_heaters = pd.DataFrame(heaters_list, columns=header)
         return df_heaters
     
