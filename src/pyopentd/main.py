@@ -659,12 +659,12 @@ class Case():
         if calc_type == 1 or calc_type == 2:
             rad_task.OrbitName = orbit_name
         
-        rad_task.RkFilename = f'{self.origin.GroupName}_{self.origin.Name}.k'
-        rad_task.RkSubmodel = f'{self.origin.GroupName}_{self.origin.Name}'
-        rad_task.HrFilename = f'{self.origin.GroupName}_{self.origin.Name}.hr'
-        rad_task.HrSubmodel = f'{self.origin.GroupName}_{self.origin.Name}'
-        rad_task.FfFilename = f'{self.origin.GroupName}_{self.origin.Name}.dat'
-        rad_task.OutputTrackerDataFile = f'{self.origin.GroupName}_{self.origin.Name}.dat'
+        rad_task.RkFilename = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}.k'
+        rad_task.RkSubmodel = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}'
+        rad_task.HrFilename = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}.hr'
+        rad_task.HrSubmodel = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}'
+        rad_task.FfFilename = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}.dat'
+        rad_task.OutputTrackerDataFile = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}.dat'
         
         # 追加
         if self.origin.RadiationTasks == []:
