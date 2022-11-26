@@ -660,9 +660,12 @@ class Case():
             rad_task.OrbitName = orbit_name
         
         rad_task.RkFilename = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}.k'
-        rad_task.RkSubmodel = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}'
+        submodel_name = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}'
+        n_rad_task = len(self.origin.RadiationTasks)
+        submodel_name = submodel_name[:29] + f'_{n_rad_task}' # submodel nameは32文字までしか入らないので、制限をかける。
+        rad_task.RkSubmodel = submodel_name
         rad_task.HrFilename = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}.hr'
-        rad_task.HrSubmodel = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}'
+        rad_task.HrSubmodel = submodel_name
         rad_task.FfFilename = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}.dat'
         rad_task.OutputTrackerDataFile = f'{self.origin.GroupName}_{self.origin.Name}_{analysis_group}.dat'
         
