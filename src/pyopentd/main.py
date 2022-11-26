@@ -492,7 +492,7 @@ class ThermalDesktop(otd.ThermalDesktop):
             symbol.Group = group
             symbol.Update()
 
-    def create_orbit(self, df_orbit, orbit_name="new_orbit"):
+    def create_orbit(self, df_orbit, orbit_name="new_orbit", solar_flux=None, albedo=None):
         """新規軌道作成
         
         Args:
@@ -523,6 +523,8 @@ class ThermalDesktop(otd.ThermalDesktop):
         orbit.HrPlanetVecArray = planet_vector_list
         orbit.HrTimeArray = time_list
         orbit.HrOrbitRadiusArray = radius_list
+        if not solar_flux is None: orbit.SolarFluxExp.Value = str(solar_flux)
+        if not albedo is None: orbit.AlbedoExp.Value = str(albedo)
         orbit.Update()
         return orbit
 
