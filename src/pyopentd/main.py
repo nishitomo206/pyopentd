@@ -57,12 +57,13 @@ class ThermalDesktop(otd.ThermalDesktop):
             value = heatload.Value
             value_exp = heatload.ValueExp
             transient_type = heatload.HeatLoadTransientType
+            enabled_exp = heatload.EnabledExp
             if heatload.ApplyConnections != []:
                 node = self.GetNode(heatload.ApplyConnections[0].Handle)
                 apply_node = f'{node.Submodel}.{node.Id}'
             if len(heatload.ApplyConnections) >= 2: print("MYWARNING: 1つのヒーターが2つ以上のノードに適用されています。")
-            heatloads_list.append([name, submodel, handle, apply_node, transient_type, value, value_exp, heatload])
-        header = ['Name', 'submodel', 'handle', 'apply_node', 'transient_type', "value", "value_exp", 'original_object']
+            heatloads_list.append([name, submodel, handle, apply_node, transient_type, value, value_exp, enabled_exp, heatload])
+        header = ['Name', 'submodel', 'handle', 'apply_node', 'transient_type', "value", "value_exp", 'enabled_exp', 'original_object']
         df_heatloads = pd.DataFrame(heatloads_list, columns=header)
         return df_heatloads
     
@@ -190,6 +191,9 @@ class ThermalDesktop(otd.ThermalDesktop):
                                         solid_brick.OutsideOpticalProperties,
                                         solid_brick.Handle,
                                         solid_brick.Comment,
+                                        solid_brick.XMax,
+                                        solid_brick.YMax,
+                                        solid_brick.ZMax,
                                         solid_brick])
         header = [  'start_submodel',
                     'cond_submodel',
@@ -198,6 +202,9 @@ class ThermalDesktop(otd.ThermalDesktop):
                     'outside_optical_properties',
                     'handle',
                     'comment',
+                    'x_max',
+                    'y_mMax',
+                    'z_mMax',
                     'original_object']
         df_solid_bricks = pd.DataFrame(solid_bricks_list, columns=header)
         return df_solid_bricks
@@ -214,6 +221,11 @@ class ThermalDesktop(otd.ThermalDesktop):
                                             solid_cylinder.OutsideOpticalProperties,
                                             solid_cylinder.Handle,
                                             solid_cylinder.Comment,
+                                            solid_cylinder.Height,
+                                            solid_cylinder.Rmin,
+                                            solid_cylinder.Rmax,
+                                            solid_cylinder.StartAngle,
+                                            solid_cylinder.EndAngle,
                                             solid_cylinder])
         header = [  'start_submodel',
                     'cond_submodel',
@@ -222,6 +234,11 @@ class ThermalDesktop(otd.ThermalDesktop):
                     'outside_optical_properties',
                     'handle',
                     'comment',
+                    'height',
+                    'r_min',
+                    'r_max',
+                    'start_angle',
+                    'end_angle',
                     'original_object']
         df_solid_cylinders = pd.DataFrame(solid_cylinders_list, columns=header)
         return df_solid_cylinders
@@ -241,6 +258,10 @@ class ThermalDesktop(otd.ThermalDesktop):
                                     rectangle.BotOpticalProp,
                                     rectangle.Handle,
                                     rectangle.Comment,
+                                    rectangle.XMax,
+                                    rectangle.YMax,
+                                    rectangle.TopThickness,
+                                    rectangle.BotThickness,
                                     rectangle])
         header = [  'top_start_submodel',
                     'bot_start_submodel',
@@ -252,6 +273,10 @@ class ThermalDesktop(otd.ThermalDesktop):
                     'bot_optical_prop',
                     'handle',
                     'comment',
+                    'x_max',
+                    'y_max',
+                    'top_thickness',
+                    'bot_thickness',
                     'original_object']
         df_rectangles = pd.DataFrame(rectangles_list, columns=header)
         return df_rectangles
@@ -271,6 +296,8 @@ class ThermalDesktop(otd.ThermalDesktop):
                                     polygon.BotOpticalProp,
                                     polygon.Handle,
                                     polygon.Comment,
+                                    polygon.TopThickness,
+                                    polygon.BotThickness,
                                     polygon])
         header = [  'top_start_submodel',
                     'bot_start_submodel',
@@ -282,6 +309,8 @@ class ThermalDesktop(otd.ThermalDesktop):
                     'bot_optical_prop',
                     'handle',
                     'comment',
+                    'top_thickness',
+                    'bot_thickness',
                     'original_object']
         df_polygons = pd.DataFrame(polygons_list, columns=header)
         return df_polygons
@@ -301,6 +330,10 @@ class ThermalDesktop(otd.ThermalDesktop):
                                     cylinder.BotOpticalProp,
                                     cylinder.Handle,
                                     cylinder.Comment,
+                                    cylinder.Height,
+                                    cylinder.Radius,
+                                    cylinder.StartAngle,
+                                    cylinder.EndAngle,
                                     cylinder])
         header = [  'top_start_submodel',
                     'bot_start_submodel',
@@ -312,6 +345,10 @@ class ThermalDesktop(otd.ThermalDesktop):
                     'bot_optical_prop',
                     'handle',
                     'comment',
+                    'height',
+                    'radius',
+                    'start_angle',
+                    'end_angle',
                     'original_object']
         df_cylinders = pd.DataFrame(cylinders_list, columns=header)
         return df_cylinders
