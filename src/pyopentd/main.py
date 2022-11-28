@@ -482,6 +482,17 @@ class ThermalDesktop(otd.ThermalDesktop):
         for symbol in self.GetSymbols():
             symbols_list.append(symbol.Name)
         return symbols_list
+    
+    def get_symbols(self):
+        symbols = []
+        for symbol in self.GetSymbols():
+            symbols.append([symbol.Name,
+                            symbol.Value,
+                            symbol.Description,
+                            symbol.Group,
+                            symbol.Type])
+        df = pd.DataFrame(symbols, columns=['name', 'value', 'description', 'group', 'type'])
+        return df
 
     def add_symbol(self, name, value, group='td_tool'):
         symbol_names_list = self.get_symbol_names()
