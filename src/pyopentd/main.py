@@ -494,6 +494,29 @@ class ThermalDesktop(otd.ThermalDesktop):
         df = pd.DataFrame(symbols, columns=['name', 'value', 'description', 'group', 'type'])
         return df
 
+    def get_symbols_each_case(self, group_name=None, output_type=None):
+        """各ケースセットのシンボルの一括取得
+        
+        Args:
+            output_type (int): アウトプットのタイプを指定。（現状はケースセットで指定されている変数のみを表示）
+        """
+        cases = self.get_casesets()
+        df_output = pd.DataFrame([])
+        for i in range(cases.shape[0]):
+            row = cases.loc[i, :]
+            case = cases.loc[i, "original_object"]
+            if not group_name is None:
+                if row["group_name"] != group_name:
+                    continue
+            df_symbol = case.get_symbols()
+            ds_symbol = df_symbol.set_index('name')["value"]
+            ds_symbol.index.name = None
+            ds_symbol.name = f'{row["group_name"]}.{row["caseset_name"]}'
+            df_output = pd.concat([df_output, ds_symbol], axis=1)
+        df_output = df_output.sort_index()
+        df_output = df_output.T
+        return df_output
+
     def add_symbol(self, name, value, group='td_tool'):
         symbol_names_list = self.get_symbol_names()
         if name in symbol_names_list:
