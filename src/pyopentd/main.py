@@ -36,8 +36,15 @@ class ThermalDesktop(otd.ThermalDesktop):
             group_name = case_td.GroupName
             caseset_name = case_td.Name
             original_object = Case(case_td)
-            cases.append([group_name, caseset_name, original_object])
-        df = pd.DataFrame(cases, columns=['group_name', 'caseset_name', 'original_object'])
+            cases.append([  case_td.GroupName,
+                            case_td.Name,
+                            original_object.get_orbit_name(),
+                            original_object])
+        header = [  'group_name',
+                    'caseset_name',
+                    'orbit_name',
+                    'original_object']
+        df = pd.DataFrame(cases, columns=header)
         return df
     
     def get_caseset(self, caseset_name, group_name):
