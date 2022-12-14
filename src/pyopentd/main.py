@@ -33,8 +33,6 @@ class ThermalDesktop(otd.ThermalDesktop):
         cases_td = self.GetCaseSets()
         cases = []
         for case_td in cases_td:
-            group_name = case_td.GroupName
-            caseset_name = case_td.Name
             original_object = Case(case_td)
             cases.append([  case_td.GroupName,
                             case_td.Name,
@@ -64,7 +62,7 @@ class ThermalDesktop(otd.ThermalDesktop):
             value = heatload.Value
             value_exp = heatload.ValueExp
             transient_type = heatload.HeatLoadTransientType
-            enabled_exp = heatload.EnabledExp
+            enabled_exp = heatload.EnabledExp.ToString()
             if heatload.ApplyConnections != []:
                 node = self.GetNode(heatload.ApplyConnections[0].Handle)
                 apply_node = f'{node.Submodel}.{node.Id}'
@@ -92,7 +90,7 @@ class ThermalDesktop(otd.ThermalDesktop):
             on_temp_exp = heater.OnTempExp
             off_temp = heater.OffTemp
             off_temp_exp = heater.OffTempExp
-            enabled_exp = heater.EnabledExp
+            enabled_exp = heater.EnabledExp.ToString()
             if heater.ApplyConnections != []:
                 node = self.GetNode(heater.ApplyConnections[0].Handle)
                 apply_node = f'{node.Submodel}.{node.Id}'
