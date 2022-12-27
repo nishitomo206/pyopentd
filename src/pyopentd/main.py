@@ -138,9 +138,9 @@ class ThermalDesktop(otd.ThermalDesktop):
             z = HrPlanetVec.Z.GetValueSI()
             planet_vecs.append([x, y, z])
         df_planet = pd.DataFrame(planet_vecs, columns=['planet_x', 'planet_y', 'planet_z']) * 1000
-        if df_planet.max().max() < 0.0011:
+        if df_planet.abs().max().max() < 0.0011:
             df_planet *= 1000
-        if df_planet.max().max() > 1.1:
+        if df_planet.abs().max().max() > 1.1:
             df_planet /= 1000
         # 時間列
         times = []
