@@ -27,7 +27,6 @@ class SaveFile(otd.Results.Dataset.SaveFile):
 
     def __init__(self, sav_path):
         super().__init__(sav_path)
-        self.sav_path = sav_path
         self.times = self.GetTimes().GetValues()[:]
 
     def get_submodels(self):
