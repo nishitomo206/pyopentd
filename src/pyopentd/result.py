@@ -2,6 +2,7 @@ import sys
 import clr
 import numpy as np
 import pandas as pd
+import typing as tp
 from argparse import ArgumentParser
 
 sys.path.append(
@@ -26,6 +27,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
 
     def __init__(self, sav_path):
         super().__init__(sav_path)
+        self.sav_path = sav_path
         self.times = self.GetTimes().GetValues()[:]
 
     def get_submodels(self):
@@ -88,3 +90,18 @@ class SaveFile(otd.Results.Dataset.SaveFile):
         """
         node_list = self.get_node_names(option="Q")
         return self.get_data(node_list)
+
+class DatasetTopology(otd.Results.Dataset.Topology.DatasetTopology):
+    """DatasetTopology Class
+
+    OpenTDv62.Results.Dataset.Topology.DatasetTopologyを継承したクラス。
+    OpenTDv62.Results.Dataset.Topology.DatasetTopologyクラスについては、マニュアル(OpenTD 62 Class Reference.chm)を参照。
+
+    """
+
+    def __init__(self, savefile:tp.Type[SaveFile], record_index=0):
+        super().__init__()
+        record_list = savefile.GetRecordNumbers()
+        record_number = record_list[record_index]
+        pcs_path = savefile.sav_path + "PCS"
+        self.itopology = self.Load(savefile, record_number, pcs_path)
