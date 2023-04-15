@@ -23,7 +23,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
 
     OpenTDv62.Results.Dataset.SaveFileを継承したクラス。OpenTDv62.Results.Dataset.SaveFileクラスについては、マニュアル(OpenTD 62 Class Reference.chm)を参照。
     また、self.topologyは対応するsavPCSファイル読み込み、OpenTDv62.Results.Dataset.Topologyを継承したクラスとなっている。
-    
+
     """
 
     def __init__(self, sav_path):
@@ -34,7 +34,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
 
     def get_pcs_file(self, record_index=-1):
         """モデルのトポロジー情報が格納されているsavPCSファイルを読み出す
-        
+
         Args:
             record_index:savファイルの中の時系列の何番目の記録をベースにトポロジーを読み出すかの指定
             デフォルトでは最後の記録を読み出すようにしている（TDの設定で時系列の最後のデータは詳細情報を出力している設定にしていることが多いため）
@@ -47,8 +47,10 @@ class SaveFile(otd.Results.Dataset.SaveFile):
             record_index = len(times) + record_index
         record_number = record_list[record_index]
         pcs_path = self.sav_path + "PCS"
-        self.topology = otd.Results.Dataset.Topology.DatasetTopology.Load(self, record_number, pcs_path)
-        
+        self.topology = otd.Results.Dataset.Topology.DatasetTopology.Load(
+            self, record_number, pcs_path
+        )
+
     def get_submodels(self):
         return self.GetThermalSubmodels()
 
@@ -151,7 +153,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
         """
         node_list = self.get_node_names(option="Q")
         return self.get_data(node_list)
-    
+
     def get_heat_capacity(self, time_index=-1):
         """全ノードの熱容量取得
         Args:
@@ -169,13 +171,13 @@ class SaveFile(otd.Results.Dataset.SaveFile):
 
     def get_all_cond(self, time_index=-1):
         """全ての熱コンダクタンス・放射結合をリストで取得（pandas.core.frame.DataFrameで出力）"""
-        
+
         cond_key_list = []
         from_node_list = []
         to_node_list = []
         is_rad_list = []
         node_id_list = []
-        
+
         i_node_list = self.topology.Nodes
         for i_node in i_node_list:
             i_cond_list = i_node.Conductors
@@ -185,45 +187,57 @@ class SaveFile(otd.Results.Dataset.SaveFile):
                     from_node = i_cond.FromNode.SindaName.Key
                     to_node = i_cond.ToNode.SindaName.Key
                     is_rad = i_cond.IsRad
-                    node_id = cond_key.split(".")[0] + ".G" + cond_key.split(".")[1]
-                    
+                    node_id = (
+                        cond_key.split(".")[0] + ".G" + cond_key.split(".")[1]
+                    )
+
                     node_id_list.append(node_id)
                     cond_key_list.append(cond_key)
                     from_node_list.append(from_node)
                     to_node_list.append(to_node)
                     is_rad_list.append(is_rad)
-        
+
         cond_value_list = self.get_data_value(node_id_list, time_index)
-        
-        list_all = list(zip(cond_key_list, from_node_list, to_node_list, is_rad_list, cond_value_list))
-        df = pd.DataFrame(list_all, columns=["Key", "From", "To", "Is Rad", "Value"])
-        df_rad = df[df['Is Rad'] == True]
-        df_cond = df[df['Is Rad'] == False]
+
+        list_all = list(
+            zip(
+                cond_key_list,
+                from_node_list,
+                to_node_list,
+                is_rad_list,
+                cond_value_list,
+            )
+        )
+        df = pd.DataFrame(
+            list_all, columns=["Key", "From", "To", "Is Rad", "Value"]
+        )
+        df_rad = df[df["Is Rad"] == True]
+        df_cond = df[df["Is Rad"] == False]
         return df_rad, df_cond
-    
+
     def get_cond_matrix(self, time_index=-1):
         """全ての熱コンダクタンス・放射結合を行列形式で取得（pandas.core.frame.DataFrameで出力）"""
-        
+
         i_node_list = self.topology.Nodes
         cond_matrix = np.zeros((len(i_node_list), len(i_node_list)))
         rad_matrix = np.zeros((len(i_node_list), len(i_node_list)))
         node_index_dict = {}
         node_list = []
-        
+
         for i in range(len(i_node_list)):
             node_index_dict[i_node_list[i].SindaName.Key] = i
             node_list.append(i_node_list[i].SindaName.Key)
-        
+
         df_rad, df_cond = self.get_all_cond(time_index)
-        
+
         for _, row in df_rad.iterrows():
             from_node = row["From"]
             to_node = row["To"]
             value = row["Value"]
-            
+
             from_index = node_index_dict[from_node]
             to_index = node_index_dict[to_node]
-            
+
             rad_matrix[from_index][to_index] = value
             rad_matrix[to_index][from_index] = value
 
@@ -231,14 +245,18 @@ class SaveFile(otd.Results.Dataset.SaveFile):
             from_node = row["From"]
             to_node = row["To"]
             value = row["Value"]
-            
+
             from_index = node_index_dict[from_node]
             to_index = node_index_dict[to_node]
-            
+
             cond_matrix[from_index][to_index] = value
             cond_matrix[to_index][from_index] = value
-        
-        df_rad_matrix = pd.DataFrame(rad_matrix, index=node_list, columns=node_list)
-        df_cond_matrix = pd.DataFrame(rad_matrix, index=node_list, columns=node_list)
-        
+
+        df_rad_matrix = pd.DataFrame(
+            rad_matrix, index=node_list, columns=node_list
+        )
+        df_cond_matrix = pd.DataFrame(
+            rad_matrix, index=node_list, columns=node_list
+        )
+
         return df_rad_matrix, df_cond_matrix
