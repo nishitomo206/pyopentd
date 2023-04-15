@@ -86,14 +86,8 @@ class SaveFile(otd.Results.Dataset.SaveFile):
         Note:
             node_listの要素は、"AAA.1"ではなく、"AAA.T1"や"AAA.Q1"という形式で指定する。
         """
-        data_td = self.GetData(node_list)
-        data = []
-        for i in range(data_td.Count):
-            tmp = data_td[i].GetValues()[:]
-            if ".T" in node_list[i]:
-                tmp = [a - 273.15 for a in tmp]
-            data.append(tmp)
-        df = pd.DataFrame(np.array(data).transpose(), columns=node_list)
+        data = self.get_data_array(node_list)
+        df = pd.DataFrame(data.transpose(), columns=node_list)
         times = self.GetTimes().GetValues()[:]
         df_times = pd.DataFrame(times, columns=["Times"])
         return pd.concat([df_times, df], axis=1)
