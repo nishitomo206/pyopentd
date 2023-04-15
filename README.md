@@ -1,4 +1,6 @@
-# pyopentd
+# pyopentd v0.1
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 （開発中）
 
@@ -30,7 +32,7 @@ Thermal DesktopのAPIであるOpenTDをpythonで触るためのライブラリ�
     ```
 
 2. ./pyopentd/src/pyopentd/ディレクトリにある、\_\_init\_\_.pyを除く全pythonファイルの"/OpenTDv62/v4.0_6.2.0.7__65e6d95ed5c2e178/"の行を自分のものに変更する。
-3. windows powershellを開いて元のディレクトリ（README.mdと同じ階層）に移動。
+3. windows powershellを開いてルートディレクトリ（README.mdと同じ階層）に移動。
 
     ``` PowerShell
     cd pyopentd
@@ -45,3 +47,7 @@ Thermal DesktopのAPIであるOpenTDをpythonで触るためのライブラリ�
 ## サンプルを実行
 
 ./sample/sample.ipynb がサンプルファイルになっているので、ファイルを開いて実行してみて下さい。
+
+## 質問、問い合わせ、その他なんでも
+
+お気軽に nishitomo206@gmail.com にお問い合わせください。
