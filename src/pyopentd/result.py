@@ -87,7 +87,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
             node_listの要素は、"AAA.1"ではなく、"AAA.T1"や"AAA.Q1"という形式で指定する。
         """
         data = self.get_data_array(node_list)
-        df = pd.DataFrame(data.transpose(), columns=node_list)
+        df = pd.DataFrame(data, columns=node_list)
         times = self.GetTimes().GetValues()[:]
         df_times = pd.DataFrame(times, columns=["Times"])
         return pd.concat([df_times, df], axis=1)
@@ -98,7 +98,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
         Args:
             node_list (list): ノードのリスト
         Returns:
-            numpy.array (len(node_list) x len(times)): 時系列データ。
+            numpy.array (len(times) x len(node_list)): 時系列データ。
         Note:
             node_listの要素は、"AAA.1"ではなく、"AAA.T1"や"AAA.Q1"という形式で指定する。
         """
@@ -109,7 +109,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
             if ".T" in node_list[i]:
                 tmp = [a - 273.15 for a in tmp]
             data.append(tmp)
-        return np.array(data)
+        return np.array(data).T
 
     def get_data_value(self, node_list, time_index):
         """単一の時系列データ（結果）の取得（numpy.arrayで出力）
@@ -130,7 +130,7 @@ class SaveFile(otd.Results.Dataset.SaveFile):
         for i in range(data_td.Count):
             tmp = data_td[i].GetValues()[time_index]
             if ".T" in node_list[i]:
-                tmp = [a - 273.15 for a in tmp]
+                tmp -= 273.15
             data.append(tmp)
         return np.array(data)
 
