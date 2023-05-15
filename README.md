@@ -15,7 +15,8 @@ Thermal DesktopのAPIであるOpenTDをpythonで触るためのライブラリ�
 
 - python = 3.8 (3.9以降はpythonnetが対応していないらしい。3.8以下であれば大丈夫？)
 - pythonnet
-- clr
+  - **clrはpythonnetに含まれているので、別でインストールしないこと**
+    - 参考: https://takeg.hatenadiary.jp/entry/2020/03/24/210000
 - pandas
 - numpy
 
@@ -38,10 +39,14 @@ Thermal DesktopのAPIであるOpenTDをpythonで触るためのライブラリ�
     cd pyopentd
     ```
 
-4. pip installする。
+4. pip installする。ただし、開発用途の場合は`-e`オプションをつける。
 
     ``` PowerShell
     pip install .
+    ```
+
+    ``` PowerShell
+    pip install -e .
     ```
 
 ## サンプルを実行
